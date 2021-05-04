@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ 	<meta charset="utf-8">
+ 	<meta name = "viewport" content="width=device-width, initial-scale=1.0">
+ 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+ 	 <title>snake.html</title>
+  </head>
+  <body bgcolor="#000000">
+  	<table>
+  	<tr>
+  		<td><h2 style="color: #FFFFFF"> Скорость <div id="speed"></div> </h2></td> 
+  		<td></td>
+     <td> <h2 style="color: #FFFFFF">Шаги <div id="steps"></div> </h2> </td>
+     	<td></td>
+     <td> <h2 style="color: #FFFFFF">Яблоки <div id="apple"></div> </h2> </td>
+ </tr>
+     </table>
+      <canvas id='canvas_example'
+      width=400 height=400
+      style='border:5px solid #FFD700' >
+      	</canvas>
+      <br>;
+      <br>;
+  </body>
+
+
+  <script>
+  			const ctx = document.getElementById('canvas_example').getContext('2d');
+            
+            let stepsMax = 20 //количество шагов до исчезновения еды;
+  			let steps = 0;
+  			let countEat = 0;
+  			let apple = 0;
+            let resetButton; 
+			let body = [
+				[3,6],
+				[4,6],
+				[5,6],//length of the snake in the beginning of the game
+			];
+			let food = [10,10];//the first apple coords
+			let direction = [1,0];//direction of the snake at the beginning
+  			let SP = 200 // normal speed
+     		document.getElementById("speed").innerHTML = SP;
+     		document.getElementById("steps").innerHTML = steps;
+     		document.getElementById("apple").innerHTML = apple;
+			window.onload = function() {
+				interval = setInterval(function(){
+					render();
+				}, SP);
+			}
+            
+            
+        
+            function check() {
+				let header = body[body.length - 1];
+				if(header[0] < 0 || header[0] > 19
+					|| header[1] < 0 || header[1] > 19) return true;
+				if(header[0] == food[0] && header[1] ==food[1]) {
+		    	body.unshift([0,0]); 
+					//lengthens the body
+				apple = apple + 1;
+				document.getElementById("apple").innerHTML = apple;
+				steps = 0;
+				document.getElementById("steps").innerHTML = steps;
+				countEat = countEat + 1;
+				if (countEat == 5) {
+				countEat = 0;
+				SP = SP-20;
+				if (SP >0) {
+					clearInterval(interval);
+					document.getElementById("speed").innerHTML = SP;
+					interval = setInterval(function(){
+					render();
+				    }, SP);
+				//alert(SP);
+				}
+				}
+					food[0] =~~(Math.random() * 19);
+					food[1] =~~(Math.random() * 19);
+								
+				}
+
+				for(let i = 0; i < body.length - 1; i++){
+					if (body[i][0] == header[0] && body[i][1] == header[1])
+					return true;
+				} 
+				return false;
+			}
+                
+			function render(){
+				if(check()){
+                    clearInterval(interval);
+                    ctx.clearRect(0, 0, 400, 400);
+                    ctx.font = "50px Franklin Gothic Medium";
+                    ctx.fillStyle = 'FFFFFF';
+                    ctx.textAlignt = 'center';
+                    ctx.fillText("Game Over!", 65, 200);
+                    ctx.fill();
+                    setGameOver();
+                    return;
+                    
+				}
+                
+				let length = body.length;
+				for(i = 0; i<length - 1; i++){
+					body[i][0] = body[i + 1][0];
+					body[i][1] = body[i + 1][1];
+				}
+				body[length - 1][0] += direction[0];
+				body[length - 1][1] += direction[1];
+				ctx.clearRect(0, 0, 400, 400);
+				for(let i = 0; i < length; i++) {
+					draw(body[i][0], body[i][1], 'green');
+				}
+				steps = steps + 1;
+				document.getElementById("steps").innerHTML = steps;
+				if (steps > stepsMax){
+					food[0] =~~(Math.random() * 19);
+					food[1] =~~(Math.random() * 19);
+					steps = 0;
+					document.getElementById("steps").innerHTML = steps;
+				}
+				draw(food[0], food[1], 'red');
+				}
+    
+
+			function draw(x, y, color) {
+				ctx.fillStyle = color;
+				ctx.fillRect(x*20-1, y*20-1, 18, 18);
+			}
+
+			window.onkeydown = function(e) {
+				switch(e.keyCode) {
+					case 65:
+						if(direction[0] !=1){
+							direction = [0,0];
+							direction[0] = -1;
+						}
+						break;
+					case 87:
+						if(direction[1] !=1){
+							direction = [0,0];
+							direction[1] = -1;
+						}
+						break;
+					case 68:
+						if(direction[0] !=-1){
+							direction = [0,0];
+							direction[0] = 1;
+						}
+						break;
+					case 83:
+						if(direction[1] !=-1){
+							direction = [0,0];
+							direction[1] = 1;
+						}
+						break;
+				}
+			}
+            
+            function setGameOver() {
+            resetButton = document.createElement('button');
+            
+            resetButton.textContent = 'Start new game';
+            document.body.appendChild(resetButton);
+            resetButton.addEventListener('click', resetGame);
+            resetButton.style.backgroundColor = 'yellow';
+            resetButton.style.font = "40px Franklin Gothic Medium";
+            resetButton.style.fontSize = '180%';
+ 
+            resetButton.style.padding = '8px';
+            }
+      
+      function resetGame() {
+            document.location.reload();
+            }
+            
+ </script>
+</html>
